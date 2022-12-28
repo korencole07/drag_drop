@@ -9,7 +9,6 @@ on:
 env:
   MIX_ENV: test
 
-
 jobs:
   build:
     name: Build and test
@@ -28,6 +27,7 @@ jobs:
         with:
           elixir-version: ${{ matrix.elixir }}
           otp-version: ${{ matrix.otp }}
+          experimental-otp: true
       - name: Install dependencies
         run: mix deps.get
       - name: Run tests
