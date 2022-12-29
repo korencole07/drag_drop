@@ -1,29 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import DragDropItem from "../components/DragDropItem";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { useDispatch, useSelector } from "react-redux";
+import { moveDragDrop, fetchDragDrop } from "../store/dragdrop";
 
 const DragDropContainer = () => {
-  const [items, setItems] = useState([
-    { icon: "ac_unit" },
-    { icon: "local_pizza" },
-    { icon: "agriculture" },
-  ]);
+  const dispatch = useDispatch();
+  const items = useSelector((state) => state.items);
 
-  function onDragEnd(result) {
-    if (!result.destination) return;
-    if (result.destination.index === result.source.index) return;
+  useEffect(() => {
+    dispatch(fetchDragDrop(items));
+  }, []);
 
-    const { source, destination } = result;
-    const current = items;
-    [current[destination.index], current[source.index]] = [
-      current[source.index],
-      current[destination.index],
-    ];
-    setItems(current);
-  }
+  const onDragEnd = (result) => {
+    if (
+      result.destination &&
+      result.destination.index !== result.source.index
+    ) {
+      const { source, destination } = result;
+      const newItems = [...items];
+      const [reorderedItem] = newItems.splice(source.index, 1);
+      newItems.splice(destination.index, 0, reorderedItem);
+
+      dispatch(moveDragDrop(newItems));
+    }
+  };
 
   return (
-    <DragDropContext onDragEnd={onDragEnd}>
+    <DragDropContext onDragEnd={(result) => onDragEnd(result)}>
       <Droppable droppableId="items">
         {(provided) => (
           <div {...provided.droppableProps} ref={provided.innerRef}>
@@ -40,7 +44,7 @@ const DragDropContainer = () => {
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                     >
-                      <DragDropItem icon={item.icon} title={item.text} />
+                      <DragDropItem icon={item.icon} />
                     </div>
                   )}
                 </Draggable>
