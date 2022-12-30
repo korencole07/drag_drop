@@ -21,8 +21,7 @@ const DragDropContainer = () => {
       const newItems = [...items];
       const [reorderedItem] = newItems.splice(source.index, 1);
       newItems.splice(destination.index, 0, reorderedItem);
-
-      dispatch(moveDragDrop(newItems));
+      dispatch(moveDragDrop(newItems, source.index, destination.index));
     }
   };
 
@@ -44,7 +43,7 @@ const DragDropContainer = () => {
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                     >
-                      <DragDropItem icon={item.icon} />
+                      <DragDropItem icon={item.icon} iconColor={item.color} />
                     </div>
                   )}
                 </Draggable>

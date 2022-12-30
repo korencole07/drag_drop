@@ -6,7 +6,8 @@ defmodule DragDrop.Application do
     children = [
       DragDropWeb.Telemetry,
       {Phoenix.PubSub, name: DragDrop.PubSub},
-      DragDropWeb.Endpoint
+      DragDropWeb.Endpoint,
+      DragDropWeb.Presence
     ]
 
     opts = [strategy: :one_for_one, name: DragDrop.Supervisor]

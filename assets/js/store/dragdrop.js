@@ -1,32 +1,34 @@
 import { combineReducers } from "redux";
-import socketConnection from "../user_socket";
+import channelConnect from "../user_socket";
 
-let socket = socketConnection();
-let channel = socket.channel("room:lobby", {});
+let channel = channelConnect();
 
 const MOVE_DRAG_DROP = "MOVE_DRAG_DROP";
 
 const DEFAULT_ITEMS = [
-  { icon: "ac_unit" },
-  { icon: "local_pizza" },
-  { icon: "agriculture" },
+  { icon: "ac_unit", color: "black" },
+  { icon: "local_pizza", color: "black" },
+  { icon: "agriculture", color: "black" },
 ];
 
 function moveDragDropItems(items) {
+  console.log("in move drag drop items", items);
   return {
     type: MOVE_DRAG_DROP,
     items,
   };
 }
 
-export function moveDragDrop(items) {
+export function moveDragDrop(items, source, destination) {
   return (dispatch) => {
     channel
       .push("move:item", {
         items: items,
+        source: source,
+        destination: destination,
       })
-      .receive("ok", (response) => {
-        console.log("item moved", response);
+      .receive("ok", () => {
+        console.log("item moved");
       })
       .receive("error", (error) => {
         console.error(error);
@@ -36,18 +38,12 @@ export function moveDragDrop(items) {
 
 export function fetchDragDrop(items) {
   return (dispatch) => {
-    channel
-      .join()
-      .receive("ok", () => {
-        console.log("joined");
-      })
-      .receive("error", (reason) => {
-        console.log("failed join", reason);
-      });
-
-    channel.on("move:item", (payload) => {
-      console.log("move:item", payload.items);
-      dispatch(moveDragDropItems(payload.items));
+    channel.on("move:item", (response) => {
+      console.log("move:item", response);
+      const { items, source, destination } = response.payload;
+      items[source]["color"] = "black";
+      items[destination]["color"] = response.user_color;
+      dispatch(moveDragDropItems(items));
     });
   };
 }
