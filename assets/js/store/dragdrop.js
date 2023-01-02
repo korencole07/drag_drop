@@ -1,21 +1,39 @@
 import { combineReducers } from "redux";
-import channelConnect from "../user_socket";
+import socketConnect from "../user_socket";
+import { getRandomColor, syncUsers } from "../utils";
+import { Presence } from "phoenix";
+import { v4 as uuid4 } from "uuid";
 
-let channel = channelConnect();
+let socket = socketConnect();
+
+let channel = socket.channel("room:lobby", {
+  user_id: uuid4(),
+  user_color: getRandomColor(),
+});
 
 const MOVE_DRAG_DROP = "MOVE_DRAG_DROP";
+const UPDATE_USERS = "UPDATE_USERS";
 
-const DEFAULT_ITEMS = [
-  { img_url: "half_dome.jpg" },
-  { img_url: "pizza.jpg" },
-  { img_url: "mustang.jpg" },
-];
+const DEFAULT_STATE = {
+  users: {},
+  items: [
+    { img_url: "half_dome.jpg" },
+    { img_url: "pizza.jpg" },
+    { img_url: "mustang.jpg" },
+  ],
+};
 
 function moveDragDropItems(items) {
-  console.log("in move drag drop items", items);
   return {
     type: MOVE_DRAG_DROP,
     items,
+  };
+}
+
+function updateUsers(users) {
+  return {
+    type: UPDATE_USERS,
+    users,
   };
 }
 
@@ -28,7 +46,7 @@ export function moveDragDrop(items, source, destination) {
         destination: destination,
       })
       .receive("ok", () => {
-        console.log("item moved");
+        //console.log("item moved");
       })
       .receive("error", (error) => {
         console.error(error);
@@ -36,23 +54,50 @@ export function moveDragDrop(items, source, destination) {
   };
 }
 
-export function fetchDragDrop(items) {
+export function fetchDragDrop() {
   return (dispatch) => {
+    let presence = {};
+    channel
+      .join()
+      .receive("ok", (user) => {
+        console.log(
+          `User ${user.user_id} joined with color ${user.user_color}`
+        );
+      })
+      .receive("error", (reason) => {
+        console.log("failed join", reason);
+      });
+
     channel.on("move:item", (response) => {
-      console.log("move:item", response);
       const { items, source, destination } = response.payload;
-      items[source]["color"] = "black";
+      items[destination]["user_id"] = response.user_id;
       items[destination]["color"] = response.user_color;
+      delete items[source]["color"];
+
       dispatch(moveDragDropItems(items));
+    });
+
+    //Tracks if user joins the channel
+    channel.on("presence_state", (state) => {
+      presence = Presence.syncState(presence, state);
+      dispatch(updateUsers(syncUsers(presence)));
+    });
+
+    //Tracks if users exits the channel
+    channel.on("presence_diff", (diff) => {
+      console.log(" in presence diff");
+      presence = Presence.syncDiff(presence, diff);
+      dispatch(updateUsers(syncUsers(presence)));
     });
   };
 }
 
-function items(state = DEFAULT_ITEMS, action) {
+function items(state = DEFAULT_STATE, action) {
   switch (action.type) {
     case MOVE_DRAG_DROP:
-      return action.items;
-
+      return { ...state, items: action.items };
+    case UPDATE_USERS:
+      return { ...state, users: action.users };
     default:
       return state;
   }

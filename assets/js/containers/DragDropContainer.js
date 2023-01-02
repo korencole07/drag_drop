@@ -1,17 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import DragDropItem from "../components/DragDropItem";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { useDispatch, useSelector } from "react-redux";
-import { moveDragDrop, fetchDragDrop } from "../store/dragdrop";
+import { moveDragDrop } from "../store/dragdrop";
 
-const DragDropContainer = () => {
-  const dispatch = useDispatch();
-  const items = useSelector((state) => state.items);
-
-  useEffect(() => {
-    dispatch(fetchDragDrop(items));
-  }, []);
-
+const DragDropContainer = ({ items, dispatch }) => {
   const onDragEnd = (result) => {
     if (
       result.destination &&
