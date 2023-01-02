@@ -4,19 +4,15 @@ defmodule DragDropWeb.RoomChannelTest do
   setup do
     {:ok, _, socket} =
       DragDropWeb.UserSocket
-      |> socket("user_id", %{some: :assign})
+      |> socket("user", %{"user_id" => "12345", "user_color" => "#FFFFFF"})
       |> subscribe_and_join(DragDropWeb.RoomChannel, "room:lobby")
 
     %{socket: socket}
   end
 
-  test "broadcasts are pushed to the client", %{socket: socket} do
-    broadcast_from!(socket, "broadcast", %{"some" => "data"})
-    assert_push "broadcast", %{"some" => "data"}
+  test "move:item is broadcast with payload", %{socket: socket} do
+    push(socket, "move:item", %{"payload" => [%{"icon" => "test1.png"},%{"icon" => "test2.png"}]})
+    assert_broadcast "move:item", %{"payload" => %{"payload" => [%{"icon" => "test1.png"}, %{"icon" => "test2.png"}]},"user_color" => "#FFFFFF"}
   end
 
-  test "move:item is broadcast with payload", %{socket: socket} do
-    push(socket, "move:item", %{"items" => [%{"icon" => "test1"},%{"icon" => "test2"},]})
-    assert_broadcast "move:item", %{"items" => [%{"icon" => "test1"},%{"icon" => "test2"},]}
-  end
 end

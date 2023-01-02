@@ -33,8 +33,8 @@ const DragDropContainer = () => {
             {items.map((item, index) => {
               return (
                 <Draggable
-                  key={item.icon}
-                  draggableId={item.icon}
+                  key={item.img_url}
+                  draggableId={item.img_url}
                   index={index}
                 >
                   {(provided) => (
@@ -43,7 +43,7 @@ const DragDropContainer = () => {
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                     >
-                      <DragDropItem icon={item.icon} iconColor={item.color} />
+                      <DragDropItem img={item.img_url} iconColor={item.color} />
                     </div>
                   )}
                 </Draggable>

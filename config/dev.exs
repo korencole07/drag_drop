@@ -16,7 +16,7 @@ config :drag_drop, DragDropWeb.Endpoint,
   secret_key_base: "/VBfUOyOCGGbeExnv9VDeoZSVpBAKfNy5kS0CfDBKCdQbOTpLJB1Al1oKNxbBST5",
   watchers: [
     # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
-    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch --loader:.js=jsx) ]}
+    esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch --loader:.js=jsx --loader:.jpg=file) ]}
   ]
 
 # ## SSL Support

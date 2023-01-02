@@ -6,9 +6,9 @@ let channel = channelConnect();
 const MOVE_DRAG_DROP = "MOVE_DRAG_DROP";
 
 const DEFAULT_ITEMS = [
-  { icon: "ac_unit", color: "black" },
-  { icon: "local_pizza", color: "black" },
-  { icon: "agriculture", color: "black" },
+  { img_url: "half_dome.jpg" },
+  { img_url: "pizza.jpg" },
+  { img_url: "mustang.jpg" },
 ];
 
 function moveDragDropItems(items) {
