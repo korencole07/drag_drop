@@ -13,6 +13,3 @@ drag_drop-*.tar
 npm-debug.log
 /assets/node_modules/
 
-Dockerfile
-/rel/overlays/bin/
-.dockerignore
