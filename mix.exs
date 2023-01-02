@@ -58,7 +58,7 @@ defmodule DragDrop.MixProject do
   defp aliases do
     [
       setup: ["deps.get"],
-      "assets.deploy": ["esbuild default --minify", "phx.digest"]
+      "assets.deploy": ["cmd npm install --prefix assets","esbuild default --minify --loader:.js=jsx", "phx.digest"]
     ]
   end
 end
