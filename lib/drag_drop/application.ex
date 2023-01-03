@@ -7,7 +7,9 @@ defmodule DragDrop.Application do
       DragDropWeb.Telemetry,
       {Phoenix.PubSub, name: DragDrop.PubSub},
       DragDropWeb.Endpoint,
-      DragDropWeb.Presence
+      DragDropWeb.Presence,
+      {DragDrop.Monitor, []},
+      {DragDrop.ItemState, %{"items": [%{"img_url" => "/images/half_dome.jpg"}, %{"img_url" => "/images/pizza.jpg"}, %{"img_url" => "/images/mustang.jpg"}]}}
     ]
 
     opts = [strategy: :one_for_one, name: DragDrop.Supervisor]

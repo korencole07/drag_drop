@@ -19,8 +19,20 @@ defmodule DragDropWeb.RoomChannelTest do
     %{socket: socket}
   end
 
+  test "on join, get default items", %{socket: socket} do
+    {:ok, _, socket} = DragDropWeb.UserSocket
+      |> socket("user", %{"user_id" => "3", "user_color" => "#test"})
+      |> subscribe_and_join(DragDropWeb.RoomChannel, "room:lobby")
 
-  test "move:item is broadcast with payload", %{socket: socket} do
+    assert_broadcast "user:enter", %{item_state: [
+          %{"img_url" => "/images/half_dome.jpg"},
+          %{"img_url" => "/images/pizza.jpg"},
+          %{"img_url" => "/images/mustang.jpg"}
+        ]
+      }
+  end
+
+  test "move:item is broadcast with payload and response", %{socket: socket} do
     #When an item is moved, test that relevant information is sent with it
     push(socket, "move:item", %{"payload" => [%{"icon" => "test1.png"},%{"icon" => "test2.png"}]})
     assert_broadcast "move:item", %{"payload" => %{"payload" => [%{"icon" => "test1.png"}, %{"icon" => "test2.png"}]},"user_color" => "#FFFFFF"}
@@ -33,7 +45,7 @@ defmodule DragDropWeb.RoomChannelTest do
     assert user.user_color == "#FFFFFF"
     assert user.user_id == "1"
 
-    {:ok, _, socket} =
+    {:ok, _, socket2} =
       DragDropWeb.UserSocket
       |> socket("user", %{"user_id" => "2", "user_color" => "#000000"})
       |> subscribe_and_join(DragDropWeb.RoomChannel, "room:lobby")
@@ -46,5 +58,15 @@ defmodule DragDropWeb.RoomChannelTest do
   end
 
 
+  test "add:item is broadcast with payload", %{socket: socket} do
+    push(socket, "add:item", %{"image" => "new_image.png"})
+    assert_broadcast "add:item", %{"payload" => %{"image" => "new_image.png"}}
+  end
+
+
+  test "delete:item is broadcast with payload", %{socket: socket} do
+    push(socket, "delete:item", %{"image" => "test1.png"})
+    assert_broadcast "delete:item", %{"payload" => %{"image" => "test1.png"}}
+  end
 
 end

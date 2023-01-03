@@ -92,6 +92,18 @@ export function fetchDragDrop(user) {
       items[destination]["color"] = response.user_color;
       if (items[source]["user_id"] == response.user_id)
         delete items[source]["color"];
+
+      channel
+        .push("update:item", {
+          items: items,
+        })
+        .receive("ok", () => {
+          //console.log("item updated");
+        })
+        .receive("error", (error) => {
+          console.error(error);
+        });
+
       dispatch(moveDragDropItems(items));
     });
 
@@ -103,6 +115,12 @@ export function fetchDragDrop(user) {
     channel.on("delete:item", (response) => {
       const { image } = response.payload;
       dispatch(deleteImageFile(image));
+    });
+
+    channel.on("user:enter", (response) => {
+      const { item_state } = response;
+      console.log(item_state);
+      dispatch(moveDragDropItems(item_state));
     });
 
     //Tracks if user joins the channel
