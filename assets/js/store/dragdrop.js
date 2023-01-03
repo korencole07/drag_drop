@@ -3,9 +3,21 @@ import socketConnect from "../user_socket";
 import { syncUsers } from "../utils";
 import { Presence } from "phoenix";
 import { v4 as uuid4 } from "uuid";
+import { showNotification } from "@mantine/notifications";
 
 let socket = socketConnect();
-let channel;
+
+channel = socket.channel("room:lobby", {
+  user_id: uuid4(),
+});
+
+let presence = {};
+channel.join().receive("error", (reason) => {
+  showNotification({
+    message: "Error joining channel",
+    color: "red",
+  });
+});
 
 const MOVE_DRAG_DROP = "MOVE_DRAG_DROP";
 const UPDATE_USERS = "UPDATE_USERS";
@@ -57,52 +69,25 @@ export function moveDragDrop(items, source, destination) {
         source: source,
         destination: destination,
       })
-      .receive("ok", () => {
-        //console.log("item moved");
-      })
       .receive("error", (error) => {
-        console.error(error);
+        showNotification({
+          message: "Error moving item",
+          color: "red",
+        });
       });
   };
 }
 
-export function fetchDragDrop(user) {
+export function fetchDragDrop() {
   return (dispatch) => {
-    channel = socket.channel("room:lobby", {
-      user_id: uuid4(),
-      username: user.name,
-      user_color: user.user_color,
-    });
-
-    let presence = {};
-    channel
-      .join()
-      .receive("ok", (user) => {
-        console.log(
-          `User ${user.user_id} with name ${user.username} joined with color ${user.user_color}`
-        );
-      })
-      .receive("error", (reason) => {
-        console.log("failed join", reason);
-      });
-
     channel.on("move:item", (response) => {
       const { items, source, destination } = response.payload;
       items[destination]["user_id"] = response.user_id;
       items[destination]["color"] = response.user_color;
-      if (items[source]["user_id"] == response.user_id)
-        delete items[source]["color"];
 
-      channel
-        .push("update:item", {
-          items: items,
-        })
-        .receive("ok", () => {
-          //console.log("item updated");
-        })
-        .receive("error", (error) => {
-          console.error(error);
-        });
+      channel.push("update:item", {
+        items: items,
+      });
 
       dispatch(moveDragDropItems(items));
     });
@@ -119,7 +104,6 @@ export function fetchDragDrop(user) {
 
     channel.on("user:enter", (response) => {
       const { item_state } = response;
-      console.log(item_state);
       dispatch(moveDragDropItems(item_state));
     });
 
@@ -137,9 +121,19 @@ export function fetchDragDrop(user) {
   };
 }
 
-export function joinUser(users) {
+export function joinUser(user) {
   return (dispatch) => {
-    dispatch(updateUsers(users));
+    channel
+      .push("update:user", {
+        user_color: user.user_color,
+        name: user.name,
+      })
+      .receive("error", (error) => {
+        showNotification({
+          message: "Error joining channel",
+          color: "red",
+        });
+      });
   };
 }
 
@@ -149,11 +143,11 @@ export function addImage(image) {
       .push("add:item", {
         image: image,
       })
-      .receive("ok", () => {
-        console.log("item added");
-      })
       .receive("error", (error) => {
-        console.error(error);
+        showNotification({
+          message: "Error adding image",
+          color: "red",
+        });
       });
   };
 }
@@ -164,11 +158,11 @@ export function deleteImage(image) {
       .push("delete:item", {
         image: image,
       })
-      .receive("ok", () => {
-        console.log("item deleted");
-      })
       .receive("error", (error) => {
-        console.error(error);
+        showNotification({
+          message: "Error deleting image",
+          color: "red",
+        });
       });
   };
 }

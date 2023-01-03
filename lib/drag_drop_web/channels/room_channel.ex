@@ -36,6 +36,12 @@ defmodule DragDropWeb.RoomChannel do
     {:noreply, socket}
   end
 
+  @impl true
+  def handle_in("update:user", payload, socket) do
+    socket = assign(socket, payload)
+    Presence.update(socket, socket.assigns["user_id"], %{user_color: payload["user_color"],  name: payload["name"], user_id: socket.assigns["user_id"]})
+    {:noreply, socket}
+  end
 
   @impl true
   def handle_in("move:item", payload, socket) do

@@ -11,10 +11,6 @@ const Main = () => {
   const items = useSelector((state) => state.items.items);
   const users = useSelector((state) => state.items.users);
 
-  useEffect(() => {
-    dispatch(fetchDragDrop(users));
-  }, []);
-
   return (
     users.length && (
       <Grid columns={3}>

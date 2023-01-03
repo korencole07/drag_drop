@@ -19,7 +19,7 @@ const DragDropItem = ({ img, iconColor }) => {
     <Paper shadow="xs" p="md" m="sm" sx={{ display: "flex" }}>
       <Group noWrap spacing={10} mt={3}>
         <CircleIcon style={{ color: iconColor ? iconColor : "white" }} />
-        <img style={{ height: 200, width: 400 }} src={img} />
+        <img style={{ width: "85%", height: "85%" }} src={img} />
         <Menu transition="pop" withArrow position="bottom-end">
           <Menu.Target>
             <ActionIcon>

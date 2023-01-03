@@ -16,7 +16,13 @@ const store = configureStore({
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Provider store={store}>
-    <MantineProvider>
+    <MantineProvider
+      theme={{
+        fontFamily: "BlinkMacSystemFont",
+        fontFamilyMonospace: "BlinkMacSystemFont",
+        headings: { fontFamily: "BlinkMacSystemFont",  },
+      }}
+    >
       <NotificationsProvider>
         <Layout />
       </NotificationsProvider>

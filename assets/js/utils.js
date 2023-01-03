@@ -16,3 +16,18 @@ export function syncUsers(presence) {
   });
   return participants;
 }
+
+export function getUsedValues(users, value) {
+  switch (value) {
+    case "user_color":
+      return Object.values(users)
+        .map((a) => a.user_color)
+        .filter((a) => a !== null);
+    case "name":
+      return Object.values(users)
+        .map((a) => a.name)
+        .filter((a) => a !== null);
+    default:
+      return [];
+  }
+}
