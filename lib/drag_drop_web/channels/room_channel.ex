@@ -19,6 +19,7 @@ defmodule DragDropWeb.RoomChannel do
 
     {:ok, _} = Presence.track(socket, user["user_id"], %{
       user_id: user["user_id"],
+      name: user["username"],
       user_color: user["user_color"]
     })
 

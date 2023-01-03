@@ -4,6 +4,7 @@ import { Grid } from "@mantine/core";
 import { UserContainer } from "./UserContainer";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDragDrop } from "../store/dragdrop";
+import { showNotification } from "@mantine/notifications";
 
 const Main = () => {
   const dispatch = useDispatch();
@@ -11,8 +12,9 @@ const Main = () => {
   const users = useSelector((state) => state.items.users);
 
   useEffect(() => {
-    dispatch(fetchDragDrop());
+    dispatch(fetchDragDrop(users));
   }, []);
+
 
   return (
     users.length && (

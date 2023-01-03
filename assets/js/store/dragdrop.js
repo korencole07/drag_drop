@@ -1,15 +1,11 @@
 import { combineReducers } from "redux";
 import socketConnect from "../user_socket";
-import { getRandomColor, syncUsers } from "../utils";
+import { syncUsers } from "../utils";
 import { Presence } from "phoenix";
 import { v4 as uuid4 } from "uuid";
 
 let socket = socketConnect();
-
-let channel = socket.channel("room:lobby", {
-  user_id: uuid4(),
-  user_color: getRandomColor(),
-});
+let channel;
 
 const MOVE_DRAG_DROP = "MOVE_DRAG_DROP";
 const UPDATE_USERS = "UPDATE_USERS";
@@ -54,14 +50,20 @@ export function moveDragDrop(items, source, destination) {
   };
 }
 
-export function fetchDragDrop() {
+export function fetchDragDrop(user) {
   return (dispatch) => {
+    channel = socket.channel("room:lobby", {
+      user_id: uuid4(),
+      username: user.name,
+      user_color: user.user_color,
+    });
+
     let presence = {};
     channel
       .join()
       .receive("ok", (user) => {
         console.log(
-          `User ${user.user_id} joined with color ${user.user_color}`
+          `User ${user.user_id} with name ${user.username} joined with color ${user.user_color}`
         );
       })
       .receive("error", (reason) => {
@@ -72,8 +74,8 @@ export function fetchDragDrop() {
       const { items, source, destination } = response.payload;
       items[destination]["user_id"] = response.user_id;
       items[destination]["color"] = response.user_color;
-      delete items[source]["color"];
-
+      if (items[source]["user_id"] == response.user_id)
+        delete items[source]["color"];
       dispatch(moveDragDropItems(items));
     });
 
@@ -85,10 +87,15 @@ export function fetchDragDrop() {
 
     //Tracks if users exits the channel
     channel.on("presence_diff", (diff) => {
-      console.log(" in presence diff");
       presence = Presence.syncDiff(presence, diff);
       dispatch(updateUsers(syncUsers(presence)));
     });
+  };
+}
+
+export function joinUser(users) {
+  return (dispatch) => {
+    dispatch(updateUsers(users));
   };
 }
 
