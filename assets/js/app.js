@@ -9,7 +9,9 @@ import { NotificationsProvider } from "@mantine/notifications";
 
 import itemMovingReducer from "./store/dragdrop";
 
-const store = configureStore({ reducer: itemMovingReducer });
+const store = configureStore({
+  reducer: itemMovingReducer,
+});
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(

@@ -4,7 +4,7 @@ import { Grid } from "@mantine/core";
 import { UserContainer } from "./UserContainer";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchDragDrop } from "../store/dragdrop";
-import { showNotification } from "@mantine/notifications";
+import AddItem from "../components/AddItem";
 
 const Main = () => {
   const dispatch = useDispatch();
@@ -15,7 +15,6 @@ const Main = () => {
     dispatch(fetchDragDrop(users));
   }, []);
 
-
   return (
     users.length && (
       <Grid columns={3}>
@@ -24,6 +23,7 @@ const Main = () => {
         </Grid.Col>
         <Grid.Col span={1}>
           <UserContainer users={users} />
+          <AddItem />
         </Grid.Col>
       </Grid>
     )

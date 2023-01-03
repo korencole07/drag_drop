@@ -9,13 +9,15 @@ let channel;
 
 const MOVE_DRAG_DROP = "MOVE_DRAG_DROP";
 const UPDATE_USERS = "UPDATE_USERS";
+const ADD_IMAGE = "ADD_IMAGE";
+const DELETE_IMAGE = "DELETE_IMAGE";
 
 const DEFAULT_STATE = {
   users: {},
   items: [
-    { img_url: "half_dome.jpg" },
-    { img_url: "pizza.jpg" },
-    { img_url: "mustang.jpg" },
+    { img_url: "/images/half_dome.jpg" },
+    { img_url: "/images/pizza.jpg" },
+    { img_url: "/images/mustang.jpg" },
   ],
 };
 
@@ -30,6 +32,20 @@ function updateUsers(users) {
   return {
     type: UPDATE_USERS,
     users,
+  };
+}
+
+function addImageFile(image) {
+  return {
+    type: ADD_IMAGE,
+    image,
+  };
+}
+
+function deleteImageFile(image) {
+  return {
+    type: DELETE_IMAGE,
+    image,
   };
 }
 
@@ -79,6 +95,16 @@ export function fetchDragDrop(user) {
       dispatch(moveDragDropItems(items));
     });
 
+    channel.on("add:item", (response) => {
+      const { image } = response.payload;
+      dispatch(addImageFile(image));
+    });
+
+    channel.on("delete:item", (response) => {
+      const { image } = response.payload;
+      dispatch(deleteImageFile(image));
+    });
+
     //Tracks if user joins the channel
     channel.on("presence_state", (state) => {
       presence = Presence.syncState(presence, state);
@@ -99,12 +125,52 @@ export function joinUser(users) {
   };
 }
 
+export function addImage(image) {
+  return (dispatch) => {
+    channel
+      .push("add:item", {
+        image: image,
+      })
+      .receive("ok", () => {
+        console.log("item added");
+      })
+      .receive("error", (error) => {
+        console.error(error);
+      });
+  };
+}
+
+export function deleteImage(image) {
+  return (dispatch) => {
+    channel
+      .push("delete:item", {
+        image: image,
+      })
+      .receive("ok", () => {
+        console.log("item deleted");
+      })
+      .receive("error", (error) => {
+        console.error(error);
+      });
+  };
+}
+
 function items(state = DEFAULT_STATE, action) {
   switch (action.type) {
     case MOVE_DRAG_DROP:
       return { ...state, items: action.items };
     case UPDATE_USERS:
       return { ...state, users: action.users };
+    case ADD_IMAGE:
+      return {
+        ...state,
+        items: [...state.items, action.image],
+      };
+    case DELETE_IMAGE:
+      return {
+        ...state,
+        items: state.items.filter((item) => item.img_url !== action.image),
+      };
     default:
       return state;
   }

@@ -35,6 +35,18 @@ defmodule DragDropWeb.RoomChannel do
     {:reply, :ok, socket}
   end
 
+  @impl true
+  def handle_in("add:item", payload, socket) do
+    broadcast(socket, "add:item", %{"payload" => payload})
+    {:reply, :ok, socket}
+  end
+
+  @impl true
+  def handle_in("delete:item", payload, socket) do
+    broadcast(socket, "delete:item", %{"payload" => payload})
+    {:reply, :ok, socket}
+  end
+
   def handle_in("user:enter", payload, socket) do
     broadcast(socket, "user:enter", payload)
     {:noreply, socket}
